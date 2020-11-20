@@ -16,6 +16,7 @@ import h5py
 import tqdm
 from sensor_msgs.msg import LaserScan
 from laser_geometry import LaserProjection
+import datetime
 
 # path = '/media/tongji-survey/data/data0929/image250//'  # 存放图片的位置
 # bag_path='/media/tongji-survey/data/data0929/2020-09-29-11-07-33.bag'
@@ -41,12 +42,12 @@ image250 = h5.create_group('image250')
 image251 = h5.create_group('image251')
 image252 = h5.create_group('image252')
 image253 = h5.create_group('image253')
-image250 = h5.create_group('18254730')
-image251 = h5.create_group('18303551')
-image252 = h5.create_group('18304070')
-image253 = h5.create_group('image253')
-image250 = h5.create_group('image250')
-image251 = h5.create_group('image251')
+image18254730 = h5.create_group('image18254730')
+image18303551 = h5.create_group('image18303551')
+image18304070 = h5.create_group('image18304070')
+image18304180 = h5.create_group('image18304180')
+image18304181 = h5.create_group('image18304181')
+image18304860 = h5.create_group('image18304860')
 
 scan = h5.create_group('scan')
 aaa = h5.create_group('aaa')
@@ -71,7 +72,7 @@ class ImageCreator():
                         timestr = "%.6f" % msg.header.stamp.to_sec()
                         # print cv_image
                         image250.create_dataset(timestr,data=cv_image)
-                        # print 'image250'+timestr
+                        print topic+','+timestr
 
                     elif topic == "/scan":  # 图像的topic；
                         cloud_out = laser_projection.projectLaser(msg)
@@ -83,6 +84,9 @@ class ImageCreator():
                         # print laser_data_path
                         scan.create_dataset(timestr, data=points)
                         # print points
+                        print topic + ',' + timestr
+
+
 
                     elif topic == "/aaa":  # 图像的topic；
                         cloud_out = laser_projection.projectLaser(msg)
@@ -93,6 +97,74 @@ class ImageCreator():
                         # np.savetxt(timestr+'.txt',points)
                         # print laser_data_path
                         aaa.create_dataset(timestr, data=points)
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18254730":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18254730.create_dataset(timestr,data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18303551":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18303551.create_dataset(timestr, data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18304070":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18304070.create_dataset(timestr, data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18304180":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18304180.create_dataset(timestr, data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18304181":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18304181.create_dataset(timestr, data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
+
+                    elif topic == "/image/18304860":  # 图像的topic；
+                        try:
+                            cv_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+                        except CvBridgeError as e:
+                            print e
+                        timestr = "%.6f" % msg.header.stamp.to_sec()
+                        image18304860.create_dataset(timestr, data=cv_image)
+                        # print 'image251'+timestr
+                        print topic+','+timestr
+
 
                     elif topic == "/image/19279251":  # 图像的topic；
                         try:
@@ -100,8 +172,10 @@ class ImageCreator():
                         except CvBridgeError as e:
                             print e
                         timestr = "%.6f" % msg.header.stamp.to_sec()
-                        image251.create_dataset(timestr,data=cv_image)
+                        image251.create_dataset(timestr, data=cv_image)
                         # print 'image251'+timestr
+                        print topic+','+timestr
+
 
                         # print image_name
                     elif topic == "/image/19279252":  # 图像的topic；
@@ -112,6 +186,8 @@ class ImageCreator():
                         timestr = "%.6f" % msg.header.stamp.to_sec()
                         image252.create_dataset(timestr,data=cv_image)
                         # print 'image252'+timestr
+                        print topic+','+timestr
+
 
                         # print image_name
                     elif topic == "/image/19279253":  # 图像的topic；
@@ -123,6 +199,8 @@ class ImageCreator():
                         image253.create_dataset(timestr,data=cv_image)
                         # print image_name
                         # print 'image253'+timestr
+                        print topic+','+timestr
+
 
                     elif topic == "/pandar_points":  # laser的topic；
                         timestr = "%.6f" % msg.header.stamp.to_sec()
@@ -135,10 +213,13 @@ class ImageCreator():
                         # print laser_data_path
                         pcd.create_dataset(timestr,data=points)
                         # print 'pcd'+timestr
-                except CvBridgeError as e:
-                    print e
+                        print topic+','+timestr
+
+
+                except:
+                    # print e
                 # except:
-                #     continue
+                    continue
 
 
 if __name__ == '__main__':
