@@ -11,8 +11,9 @@ import serial
 from std_msgs.msg import Header
 from scipy.spatial.transform import Rotation
 import time
+import tqdm
 
-pub = rospy.Publisher('imu_data', Imu, queue_size=200)
+pub = rospy.Publisher('/imu/data_raw', Imu, queue_size=200)
 rospy.init_node('imu_node', anonymous=True)
 rate = rospy.Rate(200)
 
@@ -60,10 +61,12 @@ class SerialDecoder(object):
 
         self.ser.write(STOP)
         print '关闭imu'
-        time.sleep(4)
+        time.sleep(2)
         self.ser.write(QuatData)
         print '开启QuatData格式'
         print '初始化中,等待30s,保持imu不动'
+        for i in tqdm.tqdm(range(30)):
+            time.sleep(1)
 
 
     def getdata(self):  # 获取解析到的数据
@@ -91,7 +94,7 @@ class SerialDecoder(object):
 
     def process(self):  # 进行数据解析
         while self.current > 129:  # 如果队列中数据多于2包数据
-            if self.buf[0] == 170 and self.buf[1] == 85 and self.buf[2] == 1 and self.buf[3] == 54 and self.buf[4] == 62:
+            if self.buf[0] == 170 and self.buf[1] == 85 and self.buf[2] == 1 and self.buf[3] == 54 :
                 # if self.debug:
                 #     print("检测到帧头，功能字是" + str(self.buf[2]))
 
@@ -172,13 +175,16 @@ class SerialDecoder(object):
                 if self.debug:
                     print("接收到无效数据")
 
-                temparray = self.buf[0:self.current]
-                if not isinstance(temparray, list):
-                    temparray = temparray.tolist()
-                offset = temparray.index(170)
+                # temparray = self.buf[0:self.current]
+                # if not isinstance(temparray, list):
+                #     temparray = temparray.tolist()
+                # offset = temparray.index(170)
+                for i in range(len(self.buf)):
+                    if self.buf[i+0] == 170 and self.buf[i+1] == 85 and self.buf[i+2] == 1 and self.buf[i+3] == 54 :
 
-                self.buf = np.roll(self.buf, -offset)
-                self.current -= offset
+                        self.buf = np.roll(self.buf, -i)
+                        self.current -= i
+                        break
 
 
 if __name__ == '__main__':
@@ -186,7 +192,7 @@ if __name__ == '__main__':
     count = 0
     while 1:
         newdata, signal = serialdecoder.getdata()
-        if newdata:
-            count += 1
-            # print(str(count) + ":" + str(signal))
-            print(str(count) + ":" + str(signal))
+        # if newdata:
+        #     count += 1
+        #     # print(str(count) + ":" + str(signal))
+        #     print(str(count) + ":" + str(signal))

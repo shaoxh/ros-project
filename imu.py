@@ -1,3 +1,4 @@
+#coding:utf-8
 import rospy
 # import PySpin
 # rospy.init_node('pointgrey')
@@ -10,7 +11,7 @@ from scipy.spatial.transform import Rotation
 import time
 import numpy as np
 import binascii
-
+import tqdm
 
 portx = "/dev/ttyUSB0"
 bps = 115200
@@ -21,10 +22,14 @@ NMEA = [0xAA, 0x55, 0x00, 0x00, 0x07, 0x00, 0x34, 0x3B, 0x00]
 STOP = [0xAA, 0x55, 0x00, 0x00, 0x07, 0x00, 0xFE, 0x05, 0x01]
 QuatData = [0xAA, 0x55, 0x00 ,0x00 ,0x07, 0x00, 0x36, 0x3D, 0x00]
 
-
-# ser.write(STOP)
-# time.sleep(4)
-# ser.write(NMEA)
+print '关闭imu'
+ser.write(STOP)
+time.sleep(4)
+print '开启NMEA格式'
+ser.write(NMEA)
+print '初始化中,等待30s,保持imu不动'
+for i in tqdm.tqdm(range(30)):
+    time.sleep(1)
 
 pub = rospy.Publisher('imu_data', Imu, queue_size=200)
 rospy.init_node('imu_node', anonymous=True)
@@ -38,7 +43,7 @@ def talker():
             str1 = ser.readline()
             str_split = str1.split(',')
             if (str_split[0] == '$PAPR'):
-                # print(str1)
+                print(str1)
                 roll = float(str_split[3])
                 pitch = float(str_split[4])
                 heading = float(str_split[5])
