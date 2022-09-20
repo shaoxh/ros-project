@@ -55,9 +55,21 @@ if __name__ == '__main__':
     if not os.path.exists(img_dir_mynteye_depth):
         os.makedirs(img_dir_mynteye_depth)
 
+    img_dir_flir_left = os.path.join(folder, 'flir/mav0/cam0/data')
+    if not os.path.exists(img_dir_flir_left):
+        os.makedirs(img_dir_flir_left)
+
+    img_dir_flir_right = os.path.join(folder, 'flir/mav0/cam1/data')
+    if not os.path.exists(img_dir_flir_right):
+        os.makedirs(img_dir_flir_right)
+
     time_zed2 = os.path.join(os.path.join(folder, 'zed2/mav0'), 'time.txt')
     time_mynteye_list = list()
     time_zed2_list = list()
+    time_flir_list = list();
+
+    time_flir = os.path.join(os.path.join(folder, 'flir/mav0'), 'time.txt')
+
     with rosbag.Bag(bag_file, 'r') as bag:  # 要读取的bag文件;
         try:
             for topic, msg, t in bag.read_messages():
@@ -117,9 +129,8 @@ if __name__ == '__main__':
                     # %.6f表示小数点后带有6位，可根据精确度需要修改；
                     image_name = timestr + ".jpg"  # 图像命名：时间戳.jpg
                     image_name = os.path.join(img_dir_zed_left_rct, image_name)
-                    # print ("on saving image {}".format(image_name))
-                    # if isWrite == 'true':
-                    #     cv2.imwrite(image_name, cv_image)  # 保存；
+                    if isWrite == 'true':
+                        cv2.imwrite(image_name, cv_image)  # 保存；
                 if topic == '/zed2/zed_node/right/image_rect_color':
                     try:
                         cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
@@ -130,8 +141,8 @@ if __name__ == '__main__':
                     image_name = timestr + ".jpg"  # 图像命名：时间戳.jpg
                     image_name = os.path.join(img_dir_zed_right_rct, image_name)
                     # print (image_name)
-                    # if isWrite == 'true':
-                    #     cv2.imwrite(image_name, cv_image)  # 保存；
+                    if isWrite == 'true':
+                        cv2.imwrite(image_name, cv_image)  # 保存；
 
                 if topic == '/zed2/zed_node/depth/depth_registered':
                     try:
@@ -147,12 +158,49 @@ if __name__ == '__main__':
                     image_name = os.path.join(img_dir_zed_depth, image_name)
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
+                if topic == '/flir_left_21230286':
+                    try:
+                        cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
+                    except Exception as e:
+                        print(e)
+                    timestr = "%.6f" % msg.header.stamp.to_sec()
+                    short_timestr = format(float(timestr), '.6f')
+                    # %.6f表示小数点后带有6位，可根据精确度需要修改；
+                    image_name = short_timestr + ".jpg"  # 图像命名：时间戳.jpg
+                    image_name = os.path.join(img_dir_flir_left, image_name)
+                    # print (image_name)
+                    if isWrite == 'true':
+                        cv2.imwrite(image_name, cv_image)  # 保存；
+                    time_flir_list.append(short_timestr)
+                if topic == '/flir_right_21218000':
+                    try:
+                        cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
+                    except Exception as e:
+                        print(e)
+                    # flir right 直接使用 flir left 的时间戳
+                    timestr = "%.6f" % msg.header.stamp.to_sec()
+                    short_timestr = format(float(timestr), '.6f')
+                    # %.6f表示小数点后带有6位，可根据精确度需要修改；
+                    image_name = short_timestr + ".jpg"  # 图像命名：时间戳.jpg
+                    image_name = os.path.join(img_dir_flir_right, image_name)
+                    # print (image_name)
+                    if isWrite == 'true':
+                        cv2.imwrite(image_name, cv_image)  # 保存；
 
+                if isWrite =='true':
+                    print ("on saving image {}".format(image_name))
         except rospy.ROSInterruptException:
             pass
         print("Save time string list as {}".format(time_zed2))
+
         file = open(time_zed2, 'a')
         for time in time_zed2_list:
             file.write(time)
             file.write('\n')
+
+        file = open(time_flir, 'a')
+        for time in time_flir_list:
+            file.write(time)
+            file.write('\n')
+
         file.close()
