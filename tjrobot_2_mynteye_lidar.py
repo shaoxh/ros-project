@@ -3,7 +3,7 @@
 import os
 import sys
 
-sys.path.append('/home/godu/PycharmProjects/rosbag_io/dist-packages')
+# sys.path.append('/home/godu/PycharmProjects/rosbag_io/dist-packages')
 
 import cv2
 import rosbag
@@ -118,6 +118,7 @@ if __name__ == '__main__':
                 if topic == '/zed2/zed_node/left/image_rect_color':
                     try:
                         cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
+                        # print("cv image make! ")
                         # cv2.namedWindow('zed2-left', 0)
                         # cv2.resizeWindow('zed2-left', 800, 600)  # 自己设定窗口图片的大小
                         # cv2.imshow('zed2-left', cv_image)
@@ -130,7 +131,9 @@ if __name__ == '__main__':
                     image_name = timestr + ".jpg"  # 图像命名：时间戳.jpg
                     image_name = os.path.join(img_dir_zed_left_rct, image_name)
                     if isWrite == 'true':
+                        # print (image_name)
                         cv2.imwrite(image_name, cv_image)  # 保存；
+                        continue
                 if topic == '/zed2/zed_node/right/image_rect_color':
                     try:
                         cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
@@ -140,9 +143,9 @@ if __name__ == '__main__':
                     # %.6f表示小数点后带有6位，可根据精确度需要修改；
                     image_name = timestr + ".jpg"  # 图像命名：时间戳.jpg
                     image_name = os.path.join(img_dir_zed_right_rct, image_name)
-                    # print (image_name)
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
+                        continue
 
                 if topic == '/zed2/zed_node/depth/depth_registered':
                     try:
@@ -158,6 +161,7 @@ if __name__ == '__main__':
                     image_name = os.path.join(img_dir_zed_depth, image_name)
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
+                        continue
                 if topic == '/flir_left_21230286':
                     try:
                         cv_image = CvBridge().imgmsg_to_cv2(msg, "bgr8")
@@ -187,8 +191,8 @@ if __name__ == '__main__':
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
 
-                if isWrite =='true':
-                    print ("on saving image {}".format(image_name))
+                # if isWrite =='true':
+                #     print ("on saving image {}".format(image_name))
         except rospy.ROSInterruptException:
             pass
         print("Save time string list as {}".format(time_zed2))
