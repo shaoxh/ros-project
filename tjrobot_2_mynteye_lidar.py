@@ -34,7 +34,6 @@ if __name__ == '__main__':
 
     img_dir_mynteye_left_rct = os.path.join(folder, 'mynteye/mav0/cam0/data')
     if not os.path.exists(img_dir_mynteye_left_rct):
-        print(img_dir_mynteye_left_rct)
         os.makedirs(img_dir_mynteye_left_rct)
     img_dir_mynteye_right_rct = os.path.join(folder, 'mynteye/mav0/cam1/data')
     if not os.path.exists(img_dir_mynteye_right_rct):
@@ -133,6 +132,7 @@ if __name__ == '__main__':
                     if isWrite == 'true':
                         # print (image_name)
                         cv2.imwrite(image_name, cv_image)  # 保存；
+                        print ("on saving image {}".format(image_name))
                         continue
                 if topic == '/zed2/zed_node/right/image_rect_color':
                     try:
@@ -191,8 +191,6 @@ if __name__ == '__main__':
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
 
-                # if isWrite =='true':
-                #     print ("on saving image {}".format(image_name))
         except rospy.ROSInterruptException:
             pass
         print("Save time string list as {}".format(time_zed2))
