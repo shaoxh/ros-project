@@ -22,6 +22,7 @@ def CompSortFileNamesNr(f):
     return int(numbertext)
 
 
+@DeprecationWarning
 def ReadImages(filename):
     '''Generates a list of files from the directory'''
     print("Searching directory %s" % filename)
@@ -40,7 +41,7 @@ def ReadImages(filename):
             all.append(os.path.join(filename, f))
     return all
 
-
+@DeprecationWarning
 def ReadIMU(filename):
     '''return IMU data and timestamp of IMU'''
     file = open(filename, 'r')
@@ -54,6 +55,7 @@ def ReadIMU(filename):
     return timestamp, imu_data
 
 
+@DeprecationWarning
 def CreateBag(args, captured_seq):  # img,imu, bagname, timestamps
     '''read time stamps'''
     img_left = ReadImages(args[0])
