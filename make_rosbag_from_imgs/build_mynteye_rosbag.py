@@ -78,7 +78,7 @@ def CreateBag(args, captured_seq):  # img,imu, bagname, timestamps
             img_msg = br.cv2_to_imgmsg(data)
             img_msg.header.stamp = Stamp
             img_msg.header.frame_id = "camera"
-            bag.write('/mynteye/left/image_raw', img_msg, Stamp)
+            bag.write('/zed2/zed_node/left/image_rect_color', img_msg, Stamp)
         # right imgs
         for i in range(captured_seq[0], captured_seq[1], 1):
             print("Adding %s" % img_right[i])
@@ -92,29 +92,81 @@ def CreateBag(args, captured_seq):  # img,imu, bagname, timestamps
             img_msg = br.cv2_to_imgmsg(data)
             img_msg.header.stamp = Stamp
             img_msg.header.frame_id = "camera"
-            bag.write('/mynteye/right/image_raw', img_msg, Stamp)
+            bag.write('/zed2/zed_node/right/image_rect_color', img_msg, Stamp)
     finally:
         bag.close()
 
 
+def readImgsByTimeList(img_left_path, img_right_path, time_list):
+    lefts = list()
+    rights = list()
+    for time_str in time_list:
+        img_name = time_str + ".jpg"
+        abs_img_left = os.path.join(img_left_path, img_name)
+        abs_img_right = os.path.join(img_right_path, img_name)
+        if os.path.exists(abs_img_left) and os.path.exists(abs_img_right):
+            lefts.append(abs_img_left)
+            rights.append(abs_img_right)
+    return lefts, rights
+
+
+def CreateBag(img_left, img_right, output_bag):
+    '''Creates a bag file with camera images'''
+    if not os.path.exists(output_bag):
+        os.system(r'touch %s' % output_bag)
+    bag = rosbag.Bag(output_bag, 'w')
+    try:
+        for i in range(len(left_imgs)):
+            img_time = img_left[i][-21:-4]
+            print ("writing timestamp %s to bag" % img_time)
+            try:
+                br = CvBridge()
+                Stamp = rospy.rostime.Time.from_sec(float(img_left[i][-21:-4]))
+                '''read image left'''
+                imgpil_lef = ImagePIL.open(img_left[i])
+                data_left = asarray(imgpil_lef)
+                img_msg_left = br.cv2_to_imgmsg(data_left)
+                img_msg_left.header.stamp = Stamp
+                img_msg_left.header.frame_id = "camera"
+                '''read image right'''
+                imgpil_right = ImagePIL.open(img_right[i])
+                data_right = asarray(imgpil_right)
+                img_msg_right = br.cv2_to_imgmsg(data_right)
+                img_msg_right.header.stamp = Stamp
+                img_msg_right.header.frame_id = "camera"
+
+                bag.write('/zed2/zed_node/left/image_rect_color', img_msg_left, Stamp)
+                bag.write('/zed2/zed_node/right/image_rect_color', img_msg_right, Stamp)
+            except Exception, e:
+                print("errors in writing img: {} to bag".format(img_time))
+                print e
+                continue
+    finally:
+        bag.close()
+    pass
+
+
 if __name__ == "__main__":
+    if len(sys.argv) < 4:
+        exit("please input \n left img path: \nright img path: \noutput bag file:, \ntime.txt: ")
     print ("absolute left img path: " + sys.argv[1])
     print ("absolute right img path: " + sys.argv[2])
-    print ("find bag file here: " + sys.argv[3])
-    output_bag_head = sys.argv[3]
-    captured_seq = [[4280, 4420],  # 第一
-                    [6960, 7170],  # 第二
-                    [14760, 14980],  # 第三
-                    [19105, 19705],  # 第四
-                    [39400, 39850],  # 第十一
-                    [57590, 57710],  # 第十
-                    [71100, 71420],  # 第十二
-                    [21000, 22200],  # 第五
-                    [24200, 24400],  # 第六
-                    [21750, 21870]]  # 第十三
-    # for i in range(len(captured_seq)):
-    for i in {0, 1, 3, 4, 5, 6}:
-        output_bag = output_bag_head + "-" + str(i + 1) + ".bag"
-        sys.argv[3] = output_bag
-        CreateBag(sys.argv[1:], captured_seq=captured_seq[i])
-        print ("FINISH & OUTPUT bag file at " + sys.argv[3])
+    print ("output bag file path: " + sys.argv[3])
+    print ("time string txt here: {}".format(sys.argv[4]))
+    img_left_path = sys.argv[1]
+    img_right_path = sys.argv[2]
+    time_path = sys.argv[4]
+    with open(time_path) as time_file:
+        lines_str = time_file.readlines()
+    time_str_list = list()
+    for line in lines_str:
+        if line.isspace():
+            continue
+        else:
+            time_str = line.replace("\n", "")
+            time_str_list.append(time_str)
+    output_bag_path = sys.argv[3]
+    output_bag = os.path.join(output_bag_path, "output.bag")
+    left_imgs, right_imgs = readImgsByTimeList(img_left_path, img_right_path, time_str_list)
+    CreateBag(left_imgs, right_imgs, output_bag)
+    print ("FINISH & OUTPUT bag file at " + output_bag)
