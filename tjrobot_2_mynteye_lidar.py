@@ -191,8 +191,10 @@ if __name__ == '__main__':
                     if isWrite == 'true':
                         cv2.imwrite(image_name, cv_image)  # 保存；
 
-        except rospy.ROSInterruptException:
-            pass
+        except rospy.ROSInterruptException, e:
+            print(e)
+        finally:
+            bag.close()
         print("Save time string list as {}".format(time_zed2))
 
         file = open(time_zed2, 'a')
