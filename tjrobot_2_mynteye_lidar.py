@@ -65,8 +65,8 @@ if __name__ == '__main__':
     time_zed2 = os.path.join(os.path.join(folder, 'zed2/mav0'), 'time.txt')
     time_mynteye_list = list()
     time_zed2_list = list()
-    time_flir_list = list();
-
+    time_flir_list = list()
+    time_mynteye = os.path.join(os.path.join(folder, 'mynteye/mav0'), 'time.txt')
     time_flir = os.path.join(os.path.join(folder, 'flir/mav0'), 'time.txt')
 
     with rosbag.Bag(bag_file, 'r') as bag:  # 要读取的bag文件;
@@ -204,6 +204,11 @@ if __name__ == '__main__':
 
         file = open(time_flir, 'a')
         for time in time_flir_list:
+            file.write(time)
+            file.write('\n')
+
+        file = open(time_mynteye, 'a')
+        for time in time_mynteye_list:
             file.write(time)
             file.write('\n')
 
